@@ -19,12 +19,18 @@ func Start() {
 	}
 
 	questHandler := handlers.NewQuestHandler()
+	userHandler := handlers.NewUserHandler()
 
+	// quests
 	router.HandleFunc("/quests", questHandler.GetQuests).Methods("GET")
 	router.HandleFunc("/quests/{id}", questHandler.GetQuestById).Methods("GET")
 	router.HandleFunc("/quests", questHandler.CreateQuest).Methods("POST")
 	router.HandleFunc("/quests/{id}", questHandler.UpdateQuest).Methods("PUT")
 	router.HandleFunc("/quests/{id}", questHandler.DeleteQuest).Methods("DELETE")
+
+	// users
+	router.HandleFunc("/auth", userHandler.SignUp).Methods("POST")
+	router.HandleFunc("/auth", userHandler.SignIn).Methods("GET")
 
 	server.ListenAndServe()
 }

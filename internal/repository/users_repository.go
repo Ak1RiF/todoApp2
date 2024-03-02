@@ -21,7 +21,7 @@ func NewUserRepository(databaseUrl string) *UserRepository {
 }
 
 func (r *UserRepository) GetByUsername(username string) (*models.User, error) {
-	query := `SELECT id, username, passwordhash, avatarurl, totalexperience, amountexperiencetolvl, lvl FROM users WHERE username = $1`
+	query := `SELECT id, username, passwordhash, avatarurl, sumexperience, amountexperiencetolvl, lvl FROM users WHERE username = $1`
 	var user models.User
 
 	row := r.db.QueryRow(context.Background(), query, username)
@@ -35,7 +35,7 @@ func (r *UserRepository) GetByUsername(username string) (*models.User, error) {
 }
 
 func (r *UserRepository) GetById(id int) (*models.User, error) {
-	query := `SELECT id, username, passwordhash, avatarurl, totalexperience, amountexperiencetolvl, lvl FROM users WHERE id = $1`
+	query := `SELECT id, username, passwordhash, avatarurl, sumexperience, amountexperiencetolvl, lvl FROM users WHERE id = $1`
 	var user models.User
 
 	row := r.db.QueryRow(context.Background(), query, id)
@@ -52,7 +52,7 @@ func (r *UserRepository) Create(user models.User) (int, error) {
 	var userId int
 
 	err := r.db.QueryRow(context.Background(),
-		"INSERT INTO users (username, passwordhash, avatarurl, totalexperience, amountexperiencetolvl, lvl) VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
+		"INSERT INTO users (username, passwordhash, avatarurl, sumexperience, amountexperiencetolvl, lvl) VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
 		user.Username, user.PasswordHash, user.AvatarUrl, user.TotalExperience, user.AmountExperienceToLvl, user.Lvl).Scan(&userId)
 	if err != nil {
 		return -1, err

@@ -3,7 +3,7 @@ CREATE TABLE users(
 	Username VARCHAR(255) NOT NULL,
 	PasswordHash VARCHAR(255) NOT NULL,
 	AvatarUrl VARCHAR(255),
-	SumExperienceINT DEFAULT 0,
+	SumExperience INT DEFAULT 0,
 	AmountExperienceToLvl INT,
 	Lvl INT DEFAULT 0
 );
