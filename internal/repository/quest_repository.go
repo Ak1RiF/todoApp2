@@ -21,10 +21,10 @@ func NewQuestRepository(databaseUrl string) *QuestRepository {
 }
 
 // methods
-func (r *QuestRepository) Get() ([]models.Quest, error) {
-	query := `SELECT id, title, description, dificulty, completed FROM quests`
+func (r *QuestRepository) Get(userId int) ([]models.Quest, error) {
+	query := `SELECT id, title, description, dificulty, completed FROM quests WHERE user_id = $1`
 
-	rows, err := r.db.Query(context.Background(), query)
+	rows, err := r.db.Query(context.Background(), query, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -44,11 +44,11 @@ func (r *QuestRepository) Get() ([]models.Quest, error) {
 	return quests, nil
 }
 
-func (r *QuestRepository) GetById(id int) (*models.Quest, error) {
-	query := `SELECT id, title, description, dificulty, completed FROM quests WHERE id = $1`
+func (r *QuestRepository) GetById(id, userId int) (*models.Quest, error) {
+	query := `SELECT id, title, description, dificulty, completed FROM quests WHERE id = $1 AND user_id = $2`
 	var quest models.Quest
 
-	row := r.db.QueryRow(context.Background(), query, id)
+	row := r.db.QueryRow(context.Background(), query, id, userId)
 	err := row.Scan(&quest.Id, &quest.Title, &quest.Description, &quest.Dificulty, &quest.Completed)
 
 	if err != nil {
@@ -58,10 +58,10 @@ func (r *QuestRepository) GetById(id int) (*models.Quest, error) {
 	return &quest, nil
 }
 
-func (r *QuestRepository) Create(quest models.Quest) (int, error) {
+func (r *QuestRepository) Create(quest models.Quest, userId int) (int, error) {
 	var id int
 
-	err := r.db.QueryRow(context.Background(), "INSERT INTO quests (title, description, dificulty, completed) VALUES($1, $2, $3, $4) RETURNING id", quest.Title, quest.Description, quest.Dificulty, quest.Completed).Scan(&id)
+	err := r.db.QueryRow(context.Background(), "INSERT INTO quests (title, description, dificulty, completed, user_id) VALUES($1, $2, $3, $4, $5) RETURNING id", quest.Title, quest.Description, quest.Dificulty, quest.Completed, userId).Scan(&id)
 	if err != nil {
 		return -1, err
 	}
@@ -69,17 +69,17 @@ func (r *QuestRepository) Create(quest models.Quest) (int, error) {
 	return id, nil
 }
 
-func (r *QuestRepository) Update(id int, quest models.Quest) error {
-	_, err := r.db.Exec(context.Background(), `UPDATE quests SET title = $1, description = $2, dificulty = $3, completed = $4 WHERE id = $5`,
-		quest.Title, quest.Description, quest.Dificulty, quest.Completed, id)
+func (r *QuestRepository) Update(id, userId int, quest models.Quest) error {
+	_, err := r.db.Exec(context.Background(), `UPDATE quests SET title = $1, description = $2, dificulty = $3, completed = $4 WHERE id = $5 AND user_id = $6`,
+		quest.Title, quest.Description, quest.Dificulty, quest.Completed, id, userId)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *QuestRepository) Delete(id int) error {
-	_, err := r.db.Exec(context.Background(), `DELETE FROM quests WHERE id = $1`, id)
+func (r *QuestRepository) Delete(id, userId int) error {
+	_, err := r.db.Exec(context.Background(), `DELETE FROM quests WHERE id = $1 AND user_id = $2`, id, userId)
 	if err != nil {
 		return err
 	}

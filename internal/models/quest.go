@@ -6,4 +6,5 @@ type Quest struct {
 	Description string
 	Dificulty   string
 	Completed   bool
+	UserId      int
 }

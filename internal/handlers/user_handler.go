@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/todoApp/internal/models"
 	"github.com/todoApp/internal/repository"
 	"github.com/todoApp/internal/service"
 	"github.com/todoApp/internal/service/dtos"
@@ -42,7 +43,7 @@ func (u *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid Username or Password", http.StatusBadRequest)
 	}
 
-	token, err := generateToken(userFromDb.Id)
+	token, err := generateToken(*userFromDb)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,18 +64,36 @@ func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func generateToken(userId int) (string, error) {
-	//temporarily
-	signingKey := []byte("super secret key")
+// jwt token logic
+var signingKey = []byte("super secret key")
 
-	claims := &jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Unix(43200, 0)),
-		Issuer:    "test",
-		//Audience: ,
-		Subject: strconv.Itoa(userId),
+func generateToken(user models.User) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
+		jwt.MapClaims{
+			"username": user.Username,
+			"user_id":  user.Id,
+			"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		})
+	tokenString, err := token.SignedString(signingKey)
+	if err != nil {
+		return "", err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString(signingKey)
-	return ss, err
+	return tokenString, nil
+}
+
+func verifyToken(tokenString string) error {
+	signingKey := []byte("super secret key")
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return signingKey, nil
+	})
+	if err != nil {
+		return err
+	}
+	if !token.Valid {
+		return fmt.Errorf("invalid token")
+	}
+
+	return nil
 }

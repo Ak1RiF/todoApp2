@@ -29,8 +29,8 @@ func Start() {
 	router.HandleFunc("/quests/{id}", questHandler.DeleteQuest).Methods("DELETE")
 
 	// users
-	router.HandleFunc("/auth", userHandler.SignUp).Methods("POST")
-	router.HandleFunc("/auth", userHandler.SignIn).Methods("GET")
+	router.HandleFunc("/auth/signUp", userHandler.SignUp).Methods("POST")
+	router.HandleFunc("/auth/signIn", userHandler.SignIn).Methods("POST")
 
 	server.ListenAndServe()
 }

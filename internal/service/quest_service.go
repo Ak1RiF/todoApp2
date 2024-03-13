@@ -5,6 +5,7 @@ import (
 
 	"github.com/todoApp/internal/models"
 	"github.com/todoApp/internal/repository"
+	"github.com/todoApp/internal/service/dtos"
 )
 
 type QuestService struct {
@@ -15,39 +16,52 @@ func NewQuestService(repo repository.Quests) *QuestService {
 	return &QuestService{questRepo: repo}
 }
 
-func (s *QuestService) GetAll() []models.Quest {
-	quests, err := s.questRepo.Get()
+func (s *QuestService) GetAll(userId int) []dtos.OutputQuestDto {
+	var quests []dtos.OutputQuestDto
+
+	questsFromDb, err := s.questRepo.Get(userId)
+
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	for _, v := range questsFromDb {
+		questDto := dtos.OutputQuestDto{
+			Title:       v.Title,
+			Description: v.Description,
+			Dificulty:   v.Dificulty,
+			Completed:   v.Completed,
+		}
+		quests = append(quests, questDto)
 	}
 	return quests
 }
 
-func (s *QuestService) GetById(id int) *models.Quest {
-	quest, err := s.questRepo.GetById(id)
+func (s *QuestService) GetById(id, userId int) *dtos.OutputQuestDto {
+	quest, err := s.questRepo.GetById(id, userId)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return quest
+	return &dtos.OutputQuestDto{Title: quest.Title, Description: quest.Description, Dificulty: quest.Dificulty, Completed: quest.Completed}
 }
 
-func (s *QuestService) Create(quest models.Quest) {
-	id, err := s.questRepo.Create(quest)
+func (s *QuestService) Create(quest models.Quest, userId int) {
+	id, err := s.questRepo.Create(quest, userId)
 	if id < 0 || err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (s *QuestService) Update(id int, quest models.Quest) {
+func (s *QuestService) Update(id, userId int, quest models.Quest) {
 
-	err := s.questRepo.Update(id, quest)
+	err := s.questRepo.Update(id, userId, quest)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (s *QuestService) Delete(id int) {
-	err := s.questRepo.Delete(id)
+func (s *QuestService) Delete(id, userId int) {
+	err := s.questRepo.Delete(id, userId)
 	if err != nil {
 		log.Fatal(err)
 	}

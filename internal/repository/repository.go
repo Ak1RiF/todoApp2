@@ -8,11 +8,11 @@ const (
 
 // Quests
 type Quests interface {
-	Get() ([]models.Quest, error)
-	GetById(id int) (*models.Quest, error)
-	Create(quest models.Quest) (int, error)
-	Update(id int, quest models.Quest) error
-	Delete(id int) error
+	Get(userId int) ([]models.Quest, error)
+	GetById(id, userId int) (*models.Quest, error)
+	Create(quest models.Quest, userId int) (int, error)
+	Update(id, userId int, quest models.Quest) error
+	Delete(id, userId int) error
 }
 
 // Users

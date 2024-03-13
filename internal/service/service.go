@@ -8,11 +8,11 @@ import (
 
 // Quests
 type Quests interface {
-	GetAll() []models.Quest
-	GetById(id int) *models.Quest
-	Create(quest models.Quest)
-	Update(id int, quest models.Quest)
-	Delete(id int)
+	GetAll(userId int) []dtos.OutputQuestDto
+	GetById(id, userId int) *dtos.OutputQuestDto
+	Create(quest models.Quest, userId int)
+	Update(id, userId int, quest models.Quest)
+	Delete(id, userId int)
 }
 
 type Users interface {
